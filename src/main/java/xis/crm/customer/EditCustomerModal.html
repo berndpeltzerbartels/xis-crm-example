@@ -1,0 +1,29 @@
+<div class="modal-card" xmlns:xis="https://xis.one/xsd">
+    <h2>Edit customer</h2>
+    <xis:form binding="customer" class="modal-form">
+        <input xis:binding="id" type="hidden"/>
+        <label>Name <input xis:binding="name"/></label>
+        <div class="two-columns">
+            <label>Segment <input xis:binding="segment"/></label>
+            <label>City <input xis:binding="city"/></label>
+        </div>
+        <div class="two-columns">
+            <label>Email <input xis:binding="email"/></label>
+            <label>Phone <input xis:binding="phone"/></label>
+        </div>
+        <div class="two-columns">
+            <label>Stage <input xis:binding="stage"/></label>
+            <label>Revenue <input xis:binding="revenue" type="number"/></label>
+        </div>
+        <label>Owner
+            <select xis:binding="ownerId">
+                <option xis:repeat="owner:owners" value="${owner.id}">${owner.name} (${owner.role})</option>
+            </select>
+        </label>
+        <label>Notes <textarea xis:binding="notes"></textarea></label>
+        <div class="action-row right">
+            <button class="ghost" xis:action="cancel" type="button">Cancel</button>
+            <button class="primary" xis:action="save">Save</button>
+        </div>
+    </xis:form>
+</div>

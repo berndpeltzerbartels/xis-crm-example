@@ -1,0 +1,20 @@
+<div class="modal-card" xmlns:xis="https://xis.one/xsd">
+    <h2>Add employee</h2>
+    <xis:form binding="employee" class="modal-form">
+        <label>Name <input xis:binding="name"/></label>
+        <div class="two-columns">
+            <label>Username <input xis:binding="username"/></label>
+            <label>Password <input xis:binding="password" type="password"/></label>
+        </div>
+        <label>Role
+            <select xis:binding="role">
+                <option>SALES</option>
+                <option>ADMIN</option>
+            </select>
+        </label>
+        <div class="action-row right">
+            <button class="ghost" xis:action="cancel" type="button">Cancel</button>
+            <button class="primary" xis:action="save" type="submit">Create employee</button>
+        </div>
+    </xis:form>
+</div>

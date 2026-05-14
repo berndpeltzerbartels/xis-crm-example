@@ -1,0 +1,15 @@
+<div class="modal-card" xmlns:xis="https://xis.one/xsd">
+    <h2>Schedule follow-up</h2>
+    <xis:form binding="followUp" class="modal-form">
+        <input xis:binding="customerId" type="hidden"/>
+        <div class="two-columns">
+            <label>Due date <input xis:binding="dueDate" type="date"/></label>
+            <label>Reminder <input xis:binding="reminder" placeholder="09:00"/></label>
+        </div>
+        <label>Task <input xis:binding="task"/></label>
+        <div class="action-row right">
+            <button class="ghost" xis:action="cancel" type="button">Cancel</button>
+            <button class="primary" xis:action="save">Schedule</button>
+        </div>
+    </xis:form>
+</div>

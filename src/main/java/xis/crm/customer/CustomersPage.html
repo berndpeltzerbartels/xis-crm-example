@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:xis="https://xis.one/xsd">
+<head>
+    <meta charset="UTF-8"/>
+    <title>XIS CRM</title>
+    <link rel="stylesheet" href="/css/crm.css"/>
+</head>
+<body>
+<div id="system-messages" class="system-messages"></div>
+<main class="app-shell">
+    <aside class="sidebar">
+        <p class="eyebrow">XIS CRM</p>
+        <h1>Customers</h1>
+        <div class="session-box">
+            <strong id="employee-name">${employeeName}</strong>
+            <span id="employee-role">${role}</span>
+        </div>
+        <!--xis:frontlet name="ReminderFrontlet"/-->
+        <button class="secondary" xis:if="${isAdmin}" xis:action="addEmployee" type="button">Add employee</button>
+    </aside>
+
+    <section class="customer-list">
+        <div class="section-title">
+            <h2>Pipeline</h2>
+            <span id="customer-count">${count(customers)} accounts</span>
+        </div>
+        <article class="customer-card" xis:repeat="customer:pipelineCustomers">
+            <button id="customer-${customer.id}" xis:action="selectCustomer" type="button">
+                <xis:parameter name="customerId" value="${customer.id}"/>
+                <strong>${customer.name}</strong>
+                <span>${customer.segment} · ${customer.city}</span>
+                <small>${customer.stage} · ${customer.revenueText}</small>
+            </button>
+            <div class="card-meta">
+                <span>Owner: ${customer.ownerName}</span>
+                <span>Next: ${customer.nextReminder}</span>
+            </div>
+        </article>
+    </section>
+
+    <section class="detail-panel">
+        <div class="detail-header">
+            <div>
+                <p class="eyebrow">${selectedCustomer.customer.segment}</p>
+                <h2 id="selected-customer-name">${selectedCustomer.customer.name}</h2>
+                <p id="selected-customer-contact">${selectedCustomer.customer.city} · ${selectedCustomer.email} · ${selectedCustomer.phone}</p>
+            </div>
+            <div id="selected-customer-stage" class="stage-pill">${selectedCustomer.customer.stage}</div>
+        </div>
+
+        <div class="metric-grid">
+            <div><span>Revenue</span><strong id="selected-customer-revenue">${selectedCustomer.customer.revenueText}</strong></div>
+            <div><span>Owner</span><strong id="selected-customer-owner">${selectedCustomer.customer.ownerName}</strong></div>
+            <div><span>Open Tasks</span><strong id="selected-customer-open-tasks">${selectedCustomer.customer.openTasks}</strong></div>
+            <div><span>Next reminder</span><strong id="selected-customer-next-reminder">${selectedCustomer.customer.nextReminder}</strong></div>
+        </div>
+
+        <div class="action-row">
+            <button class="primary" xis:action="editCustomer" type="button">
+                <xis:parameter name="customerId" value="${selectedCustomer.customer.id}"/>
+                Edit customer
+            </button>
+            <button class="secondary" xis:action="addContact" type="button">
+                <xis:parameter name="customerId" value="${selectedCustomer.customer.id}"/>
+                Add contact
+            </button>
+            <button class="secondary" xis:action="scheduleFollowUp" type="button">
+                <xis:parameter name="customerId" value="${selectedCustomer.customer.id}"/>
+                Schedule
+            </button>
+        </div>
+
+        <section class="notes">
+            <h3>Notes</h3>
+            <p>${selectedCustomer.notes}</p>
+        </section>
+
+        <div class="timeline-grid">
+            <section>
+                <h3>Contact history</h3>
+                <ol class="timeline">
+                    <li xis:repeat="contact:selectedCustomer.contacts">
+                        <span>${contact.contactDate} · ${contact.channel}</span>
+                        <strong>${contact.employeeName}</strong>
+                        <p>${contact.description}</p>
+                    </li>
+                </ol>
+            </section>
+            <!--
+         <section>
+             <h3>Schedule</h3>
+
+             <ol class="timeline tasks">
+                 <li xis:repeat="followUp:selectedCustomer.followUps" class="${followUp.done ? 'done' : ''}">
+                     <span>${followUp.dueDate} · Reminder ${followUp.reminder}</span>
+                     <strong>${followUp.task}</strong>
+                     <p>${followUp.employeeName}</p>
+                     <button xis:if="${!followUp.done}" xis:action="completeFollowUp" type="button">
+                         <xis:parameter name="followUpId" value="${followUp.id}"/>
+                         Done
+                     </button>
+                 </li>
+             </ol>
+
+         </section> -->
+        </div>
+    </section>
+</main>
+</body>
+</html>

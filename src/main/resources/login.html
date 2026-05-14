@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:xis="https://xis.one/xsd">
+<head>
+    <meta charset="UTF-8"/>
+    <title>XIS CRM Login</title>
+    <link rel="stylesheet" href="/css/crm.css"/>
+</head>
+<body>
+<main class="login-shell">
+    <section class="login-card">
+        <p class="eyebrow">XIS CRM</p>
+        <h1>Sign in</h1>
+        <p class="intro">Use one of the seeded accounts to open the CRM workspace.</p>
+        <xis:form binding="login" class="modal-form">
+            <xis:global-messages/>
+            <input xis:binding="state" type="hidden"/>
+            <label xis:binding="username" xis:error-class="error">Username</label>
+            <input xis:binding="username" autocomplete="username"/>
+            <xis:message message-for="username"/>
+            <label xis:binding="password" xis:error-class="error">Password</label>
+            <input xis:binding="password" type="password" autocomplete="current-password"/>
+            <xis:message message-for="password"/>
+            <button class="primary" xis:action="login" type="submit">Sign in</button>
+        </xis:form>
+        <p class="hint">Try admin/admin or mara/demo.</p>
+    </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,18 @@
+<section class="reminder-frontlet" xmlns:xis="https://xis.one/xsd">
+    <div class="section-title compact">
+        <h2>Due now</h2>
+        <span>${count(reminders)}</span>
+    </div>
+    <p class="empty-state" xis:if="${!hasReminders}">No current reminders.</p>
+    <ol class="reminder-list" xis:if="${hasReminders}">
+        <li xis:repeat="reminder:reminders">
+            <span>${reminder.dueDate} · ${reminder.customerName}</span>
+            <strong>${reminder.task}</strong>
+            <small>${reminder.nextReminderAt}</small>
+            <button class="ghost" xis:action="complete" type="button">
+                <xis:parameter name="followUpId" value="${reminder.followUpId}"/>
+                Done
+            </button>
+        </li>
+    </ol>
+</section>

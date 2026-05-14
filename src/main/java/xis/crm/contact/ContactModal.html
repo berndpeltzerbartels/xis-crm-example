@@ -1,0 +1,22 @@
+<div class="modal-card" xmlns:xis="https://xis.one/xsd">
+    <h2>Add contact</h2>
+    <xis:form binding="contact" class="modal-form">
+        <input xis:binding="customerId" type="hidden"/>
+        <div class="two-columns">
+            <label>Date <input xis:binding="contactDate" type="date"/></label>
+            <label>Channel
+                <select xis:binding="channel">
+                    <option>Call</option>
+                    <option>Email</option>
+                    <option>Meeting</option>
+                    <option>Workshop</option>
+                </select>
+            </label>
+        </div>
+        <label>Description <textarea xis:binding="description"></textarea></label>
+        <div class="action-row right">
+            <button class="ghost" xis:action="cancel" type="button">Cancel</button>
+            <button class="primary" xis:action="save">Save contact</button>
+        </div>
+    </xis:form>
+</div>

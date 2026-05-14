@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'one.xis.plugin' version '0.9.5'
+}
+
+group = 'one.xis.examples'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+var lombokVersion = '1.18.22'
+
+dependencies {
+    implementation 'one.xis:xis-boot'
+    implementation 'one.xis:xis-authentication'
+    implementation 'one.xis:xis-sql'
+
+
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    implementation "org.projectlombok:lombok:$lombokVersion"
+
+    implementation 'org.slf4j:slf4j-api:2.0.3'
+
+    implementation 'com.h2database:h2:2.2.224'
+    runtimeOnly 'org.tinylog:slf4j-tinylog:2.6.2'
+    runtimeOnly 'org.tinylog:tinylog-impl:2.6.2'
+
+    testImplementation platform('org.junit:junit-bom:5.10.3')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+    useJUnitPlatform()
+}
