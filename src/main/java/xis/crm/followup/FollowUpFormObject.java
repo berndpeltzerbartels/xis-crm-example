@@ -1,13 +1,18 @@
 package xis.crm.followup;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import one.xis.validation.LabelKey;
+import one.xis.validation.Mandatory;
+import one.xis.validation.MinLength;
 
-@Getter
-@Setter
+@Data
 public class FollowUpFormObject {
     private long customerId;
-    private String dueDate = "";
+    @Mandatory
+    @LabelKey("followUp.dueDate")
+    private String dueDate;
+    @Mandatory
+    @MinLength(6)
+    @LabelKey("followUp.task")
     private String task = "";
-    private String reminder = "09:00";
 }

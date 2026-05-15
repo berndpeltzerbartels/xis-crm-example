@@ -2,11 +2,10 @@ package xis.crm.reminder;
 
 import lombok.RequiredArgsConstructor;
 import one.xis.context.Component;
-import one.xis.context.Init;
+import one.xis.context.Scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -16,14 +15,9 @@ public class ReminderNotifier {
 
     private final ReminderService reminders;
 
-    @Init
+    @Scheduled(initialDelay = 5, fixedDelay = 30, timeUnit = TimeUnit.SECONDS)
     void start() {
-        var executor = Executors.newSingleThreadScheduledExecutor(task -> {
-            var thread = new Thread(task, "crm-reminder-notifier");
-            thread.setDaemon(true);
-            return thread;
-        });
-       // executor.scheduleWithFixedDelay(this::publishDueReminders, 5, 30, TimeUnit.SECONDS);
+        publishDueReminders();
     }
 
     private void publishDueReminders() {
@@ -34,8 +28,8 @@ public class ReminderNotifier {
         }
     }
 
-    private void publishDueReminder(DueReminder reminder) {
-        reminders.markReminderSent(reminder);
-        reminders.publishReminders(reminder.username());
+    private void publishDueReminder(Reminder reminder) {
+        reminders.publishReminders(reminder.getEmployeeId());
+        reminders.markReminderSent(reminder.getId());
     }
 }

@@ -6,10 +6,10 @@ import java.util.List;
 
 public interface CustomerService {
     List<Customer> customers();
-
-    CustomerDetail customerDetail(long id);
-
+    
     Customer customer(long id);
+
+    CustomerFormObject customerFormObject(long id);
 
     CustomerEntity customerEntity(long id);
 

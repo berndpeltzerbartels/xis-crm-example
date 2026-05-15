@@ -10,7 +10,7 @@
             <strong>${reminder.task}</strong>
             <small>${reminder.nextReminderAt}</small>
             <button class="ghost" xis:action="complete" type="button">
-                <xis:parameter name="followUpId" value="${reminder.followUpId}"/>
+                <xis:parameter name="reminderId" value="${reminder.id}"/>
                 Done
             </button>
         </li>

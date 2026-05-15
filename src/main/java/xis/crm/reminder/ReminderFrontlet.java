@@ -1,14 +1,7 @@
 package xis.crm.reminder;
 
 import lombok.RequiredArgsConstructor;
-import one.xis.Action;
-import one.xis.Authenticated;
-import one.xis.Frontlet;
-import one.xis.ModelData;
-import one.xis.ModalResponse;
-import one.xis.Parameter;
-import one.xis.RefreshOnUpdateEvents;
-import one.xis.UserId;
+import one.xis.*;
 import xis.crm.CrmEvents;
 
 import java.util.List;
@@ -18,20 +11,21 @@ import java.util.List;
 @RefreshOnUpdateEvents(CrmEvents.REMINDERS)
 @RequiredArgsConstructor
 class ReminderFrontlet {
-    private final ReminderService reminders;
+    private final ReminderService reminderService;
 
     @ModelData
-    List<ReminderItem> reminders(@UserId String userId) {
-        return reminders.reminders(userId);
+    @SharedValue("reminders")
+    List<Reminder> reminders(@UserId String userId) {
+        return reminderService.reminders(userId);
     }
 
     @ModelData
-    boolean hasReminders(@UserId String userId) {
-        return !reminders.reminders(userId).isEmpty();
+    boolean hasReminders(@SharedValue("reminders") List<Reminder> reminders) {
+        return !reminders.isEmpty();
     }
 
     @Action
-    ModalResponse complete(@Parameter("followUpId") long followUpId) {
-        return ModalResponse.open(ReminderDoneModal.class).parameter("followUpId", followUpId);
+    void complete(@Parameter("reminderId") long reminderId) {
+        reminderService.completeReminder(reminderId);
     }
 }

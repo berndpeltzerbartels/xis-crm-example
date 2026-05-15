@@ -1,23 +1,20 @@
 package xis.crm;
 
-import one.xis.context.AppContext;
 import one.xis.RefreshEvent;
 import one.xis.RefreshEventPublisher;
+import one.xis.context.AppContext;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import xis.crm.contact.ContactEntry;
-import xis.crm.contact.ContactRepository;
 import xis.crm.customer.CustomerRepository;
-import xis.crm.employee.Employee;
-import xis.crm.employee.EmployeeRepository;
+import xis.crm.contact.ContactService;
+import xis.crm.employee.EmployeeService;
 import xis.crm.employee.EmployeeServiceImpl;
-import xis.crm.followup.FollowUp;
-import xis.crm.followup.FollowUpRepository;
-import xis.crm.reminder.ReminderRepository;
+import xis.crm.followup.FollowUpFormObject;
+import xis.crm.followup.FollowUpService;
+import xis.crm.reminder.ReminderService;
 
 import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class RepositoryMappingTest {
@@ -43,16 +40,14 @@ class RepositoryMappingTest {
 
     @Test
     void mapsEmployeesToUserInfo() {
-        EmployeeRepository employees = context.getSingleton(EmployeeRepository.class);
+        EmployeeService employees = context.getSingleton(EmployeeService.class);
 
-        Employee employee = employees.findActiveByUsername("mara").orElseThrow();
+        var employee = employees.employee("mara");
 
         assertEquals("mara", employee.getUserId());
-        assertEquals("mara", employee.getUsername());
         assertEquals("Mara Stein", employee.getName());
         assertEquals("demo", employee.getPassword());
         assertEquals("SALES", employee.getRole());
-        assertTrue(employee.getRoles().contains("SALES"));
         assertTrue(employee.isActive());
     }
 
@@ -70,37 +65,35 @@ class RepositoryMappingTest {
 
     @Test
     void mapsContactsAndFollowUps() {
-        ContactRepository contacts = context.getSingleton(ContactRepository.class);
-        FollowUpRepository followUps = context.getSingleton(FollowUpRepository.class);
+        ContactService contacts = context.getSingleton(ContactService.class);
+        FollowUpService followUps = context.getSingleton(FollowUpService.class);
 
-        ContactEntry contact = contacts.findByCustomer(1).get(0);
-        FollowUp followUp = followUps.findByCustomer(1).get(0);
+        var contact = contacts.contacts(1).get(0);
+        var followUp = followUps.followUps(1).get(0);
 
         assertEquals(1L, contact.getCustomerId());
         assertFalse(contact.getContactDate().isBlank());
         assertFalse(contact.getEmployeeName().isBlank());
         assertEquals(1L, followUp.getCustomerId());
-        assertFalse(followUp.getDueDate().isBlank());
+        assertNotNull(followUp.getDueDate());
         assertFalse(followUp.getTask().isBlank());
     }
 
     @Test
     void createsFollowUpWithReminder() {
-        FollowUpRepository followUps = context.getSingleton(FollowUpRepository.class);
-        ReminderRepository reminders = context.getSingleton(ReminderRepository.class);
+        FollowUpService followUps = context.getSingleton(FollowUpService.class);
+        ReminderService reminders = context.getSingleton(ReminderService.class);
 
-        var followUp = new FollowUp();
+        var followUp = new FollowUpFormObject();
         followUp.setCustomerId(1);
-        followUp.setEmployeeId(2);
-        followUp.setDueDate("2020-01-01");
+        followUp.setDueDate("2026-05-20T10:30");
         followUp.setTask("Send architecture note");
-        followUp.setReminder("08:30");
 
-        long id = followUps.createFollowUp(followUp);
+        followUps.addFollowUp(followUp, "mara");
 
-        assertTrue(followUps.findByCustomer(1).stream().anyMatch(item -> item.getId() == id));
-        assertTrue(reminders.findForUser("mara").stream()
-                .anyMatch(item -> item.followUpId() == id && item.reminder().equals("08:30")));
+        assertTrue(followUps.followUps(1).stream().anyMatch(item -> item.getTask().equals("Send architecture note")));
+        assertTrue(reminders.reminders("mara").stream()
+                .anyMatch(item -> item.getTask().equals("Send architecture note")));
     }
 
     static class NoopRefreshEventPublisher implements RefreshEventPublisher {

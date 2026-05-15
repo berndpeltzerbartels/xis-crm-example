@@ -2,15 +2,25 @@ package xis.crm.reminder;
 
 import one.xis.sql.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 public interface ReminderService {
-    List<ReminderItem> reminders(String username);
+    List<Reminder> reminders(String username);
 
-    List<DueReminder> dueReminders();
+    List<Reminder> dueReminders();
 
     @Transactional
-    void markReminderSent(DueReminder reminder);
+    void createReminder(long followUpId, String employeeId, Instant dueDate);
 
-    void publishReminders(String username);
+    @Transactional
+    void markReminderSent(long reminderId);
+
+    @Transactional
+    void completeReminder(long reminderId);
+
+    @Transactional
+    void completeRemindersForFollowUp(long followUpId);
+
+    void publishReminders(String employeeId);
 }

@@ -1,17 +1,24 @@
 <div class="modal-card" xmlns:xis="https://xis.one/xsd">
     <h2>Add employee</h2>
     <xis:form binding="employee" class="modal-form">
-        <label>Name <input xis:binding="name"/></label>
+        <xis:global-messages/>
+        <label xis:binding="name" xis:error-class="error">Name <input xis:binding="name" xis:error-class="error"/></label>
+        <xis:message class="field-error" message-for="name"/>
         <div class="two-columns">
-            <label>Username <input xis:binding="username"/></label>
-            <label>Password <input xis:binding="password" type="password"/></label>
+            <label xis:binding="userId" xis:error-class="error">User ID <input xis:binding="userId" xis:error-class="error"/></label>
+            <label xis:binding="password" xis:error-class="error">Password <input xis:binding="password" xis:error-class="error" type="password"/></label>
         </div>
-        <label>Role
-            <select xis:binding="role">
-                <option>SALES</option>
-                <option>ADMIN</option>
+        <div class="two-columns">
+            <xis:message class="field-error" message-for="userId"/>
+            <xis:message class="field-error" message-for="password"/>
+        </div>
+        <label xis:binding="role" xis:error-class="error">Role
+            <select xis:binding="role" xis:error-class="error">
+                <option value="SALES">SALES</option>
+                <option value="ADMIN">ADMIN</option>
             </select>
         </label>
+        <xis:message class="field-error" message-for="role"/>
         <div class="action-row right">
             <button class="ghost" xis:action="cancel" type="button">Cancel</button>
             <button class="primary" xis:action="save" type="submit">Create employee</button>

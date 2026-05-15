@@ -1,13 +1,7 @@
 package xis.crm.followup;
 
 import lombok.RequiredArgsConstructor;
-import one.xis.Action;
-import one.xis.Authenticated;
-import one.xis.FormData;
-import one.xis.Modal;
-import one.xis.ModalResponse;
-import one.xis.Parameter;
-import one.xis.UserId;
+import one.xis.*;
 
 @Modal("/customers/follow-up")
 @Authenticated

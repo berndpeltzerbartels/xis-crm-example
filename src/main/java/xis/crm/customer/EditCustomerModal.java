@@ -22,12 +22,17 @@ class EditCustomerModal {
 
     @FormData("customer")
     CustomerFormObject customer(@Parameter("customerId") long customerId) {
-        return CustomerFormObject.from(customers.customerEntity(customerId));
+        return customers.customerFormObject(customerId);
     }
 
     @ModelData
     List<Employee> owners() {
         return employees.employees();
+    }
+
+    @ModelData
+    CustomerStage[] stages() {
+        return CustomerStage.values();
     }
 
     @Action

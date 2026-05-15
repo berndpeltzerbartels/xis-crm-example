@@ -3,17 +3,16 @@ package xis.crm.customer;
 import lombok.Data;
 
 @Data
-public class Customer {
+public class PipelineCustomer {
     private long id;
     private String name;
     private String segment;
     private String city;
-    private String email;
-    private String phone;
     private CustomerStage stage;
     private int revenue;
+    private String revenueText;
     private String ownerId;
+    private String ownerName;
     private int openTasks;
-    private String notes;
-
+    private String nextReminder;
 }

@@ -10,7 +10,7 @@ import one.xis.sql.Entity;
 public class ContactEntity {
     private long id;
     private long customerId;
-    private long employeeId;
+    private String employeeId;
     private String contactDate = "";
     private String channel = "Call";
     private String description = "";

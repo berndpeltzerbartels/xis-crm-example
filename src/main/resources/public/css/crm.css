@@ -276,13 +276,14 @@ label {
     padding: 14px 0;
 }
 
-.customer-card button {
+.customer-card a {
     background: transparent;
     color: inherit;
     display: grid;
     gap: 5px;
     padding: 0;
     text-align: left;
+    text-decoration: none;
     width: 100%;
 }
 
@@ -404,6 +405,43 @@ label {
 .modal-form {
     display: grid;
     gap: 15px;
+}
+
+.modal-form ul.error {
+    background: #fff0ed;
+    border: 1px solid #d97762;
+    border-radius: 6px;
+    color: #7f271b;
+    list-style: none;
+    margin: 0;
+    padding: 10px 12px;
+}
+
+.modal-form li.error {
+    font-weight: 800;
+}
+
+.modal-form label.error {
+    color: #8b2c1f;
+}
+
+.modal-form input.error,
+.modal-form select.error,
+.modal-form textarea.error {
+    border-color: #c75644;
+    box-shadow: 0 0 0 3px rgba(199, 86, 68, 0.14);
+}
+
+.field-error {
+    color: #8b2c1f;
+    font-size: 12px;
+    font-weight: 800;
+    margin-top: -8px;
+    min-height: 0;
+}
+
+.field-error:empty {
+    display: none;
 }
 
 .two-columns {

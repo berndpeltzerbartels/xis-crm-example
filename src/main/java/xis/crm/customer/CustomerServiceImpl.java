@@ -2,9 +2,6 @@ package xis.crm.customer;
 
 import lombok.RequiredArgsConstructor;
 import one.xis.context.Component;
-import xis.crm.contact.ContactRepository;
-import xis.crm.employee.EmployeeService;
-import xis.crm.followup.FollowUpRepository;
 
 import java.util.List;
 
@@ -13,25 +10,20 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customers;
-    private final ContactRepository contacts;
-    private final EmployeeService employees;
-    private final FollowUpRepository followUps;
 
     @Override
     public List<Customer> customers() {
-        return customers.findCustomerSummaries();
-    }
-
-    @Override
-    public CustomerDetail customerDetail(long id) {
-        Customer customer = customer(id);
-        return new CustomerDetail(customer, customer.getEmail(), customer.getPhone(), customer.getNotes(),
-                contacts.findByCustomer(id));
+        return customers.findAll().stream().map(this::toCustomer).toList();
     }
 
     @Override
     public Customer customer(long id) {
         return toCustomer(customerEntity(id));
+    }
+
+    @Override
+    public CustomerFormObject customerFormObject(long id) {
+        return toCustomerFormObject(customerEntity(id));
     }
 
     @Override
@@ -54,18 +46,33 @@ public class CustomerServiceImpl implements CustomerService {
         customers.save(entity);
     }
 
-    private Customer toCustomer(CustomerEntity entity) {
-        Customer customer = entity.toCustomer();
-        customer.setOwnerName(employees.employee(entity.getOwnerId()).getName());
-        var followUpsForCustomer = followUps.findByCustomer(entity.getId());
-        customer.setOpenTasks((int) followUpsForCustomer.stream()
-                .filter(followUp -> !followUp.isDone())
-                .count());
-        customer.setNextReminder(followUpsForCustomer.stream()
-                .filter(followUp -> !followUp.isDone())
-                .map(followUp -> followUp.getDueDate())
-                .findFirst()
-                .orElse("none"));
+    Customer toCustomer(CustomerEntity entity) {
+        var customer = new Customer();
+        customer.setId(entity.getId());
+        customer.setName(entity.getName());
+        customer.setSegment(entity.getSegment());
+        customer.setCity(entity.getCity());
+        customer.setEmail(entity.getEmail());
+        customer.setPhone(entity.getPhone());
+        customer.setStage(entity.getStage());
+        customer.setRevenue(entity.getRevenue());
+        customer.setOwnerId(entity.getOwnerId());
+        customer.setNotes(entity.getNotes());
+        return customer;
+    }
+
+    private CustomerFormObject toCustomerFormObject(CustomerEntity entity) {
+        var customer = new CustomerFormObject();
+        customer.setId(entity.getId());
+        customer.setName(entity.getName());
+        customer.setSegment(entity.getSegment());
+        customer.setCity(entity.getCity());
+        customer.setEmail(entity.getEmail());
+        customer.setPhone(entity.getPhone());
+        customer.setStage(entity.getStage());
+        customer.setRevenue(entity.getRevenue());
+        customer.setOwnerId(entity.getOwnerId());
+        customer.setNotes(entity.getNotes());
         return customer;
     }
 }

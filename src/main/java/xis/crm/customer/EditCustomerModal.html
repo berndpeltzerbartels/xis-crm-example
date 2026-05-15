@@ -1,25 +1,41 @@
 <div class="modal-card" xmlns:xis="https://xis.one/xsd">
     <h2>Edit customer</h2>
     <xis:form binding="customer" class="modal-form">
+        <xis:global-messages/>
         <input xis:binding="id" type="hidden"/>
-        <label>Name <input xis:binding="name"/></label>
+        <label xis:binding="name" xis:error-class="error">Name <input xis:binding="name" xis:error-class="error"/></label>
+        <xis:message class="field-error" message-for="name"/>
         <div class="two-columns">
-            <label>Segment <input xis:binding="segment"/></label>
-            <label>City <input xis:binding="city"/></label>
+            <label xis:binding="segment" xis:error-class="error">Segment <input xis:binding="segment" xis:error-class="error"/></label>
+            <label xis:binding="city" xis:error-class="error">City <input xis:binding="city" xis:error-class="error"/></label>
         </div>
         <div class="two-columns">
-            <label>Email <input xis:binding="email"/></label>
-            <label>Phone <input xis:binding="phone"/></label>
+            <xis:message class="field-error" message-for="segment"/>
+            <xis:message class="field-error" message-for="city"/>
         </div>
         <div class="two-columns">
-            <label>Stage <input xis:binding="stage"/></label>
+            <label xis:binding="email" xis:error-class="error">Email <input xis:binding="email" xis:error-class="error"/></label>
+            <label xis:binding="phone" xis:error-class="error">Phone <input xis:binding="phone" xis:error-class="error"/></label>
+        </div>
+        <div class="two-columns">
+            <xis:message class="field-error" message-for="email"/>
+            <xis:message class="field-error" message-for="phone"/>
+        </div>
+        <div class="two-columns">
+            <label xis:binding="stage" xis:error-class="error">Stage
+                <select xis:binding="stage" xis:error-class="error">
+                    <option xis:repeat="stage:stages" value="${stage}">${stage}</option>
+                </select>
+            </label>
             <label>Revenue <input xis:binding="revenue" type="number"/></label>
         </div>
-        <label>Owner
-            <select xis:binding="ownerId">
-                <option xis:repeat="owner:owners" value="${owner.id}">${owner.name} (${owner.role})</option>
+        <xis:message class="field-error" message-for="stage"/>
+        <label xis:binding="ownerId" xis:error-class="error">Owner
+            <select xis:binding="ownerId" xis:error-class="error">
+                <option xis:repeat="owner:owners" value="${owner.userId}">${owner.name} (${owner.role})</option>
             </select>
         </label>
+        <xis:message class="field-error" message-for="ownerId"/>
         <label>Notes <textarea xis:binding="notes"></textarea></label>
         <div class="action-row right">
             <button class="ghost" xis:action="cancel" type="button">Cancel</button>

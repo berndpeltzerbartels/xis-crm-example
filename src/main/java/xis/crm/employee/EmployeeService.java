@@ -5,10 +5,10 @@ import one.xis.sql.Transactional;
 
 import java.util.List;
 
-public interface EmployeeService extends UserInfoService<Employee> {
+public interface EmployeeService extends UserInfoService<EmployeeEntity> {
     List<Employee> employees();
 
-    Employee employee(long id);
+    Employee employee(String userId);
 
     Employee newEmployee();
 

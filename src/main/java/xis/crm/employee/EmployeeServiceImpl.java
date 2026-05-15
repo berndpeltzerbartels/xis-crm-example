@@ -5,6 +5,7 @@ import one.xis.context.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -14,29 +15,29 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public boolean validateCredentials(String userId, String password) {
-        return repository.findActiveByUsername(userId)
+        return repository.findActiveByUserIdOrPreferredUsername(userId)
                 .filter(employee -> employee.getPassword().equals(password))
                 .isPresent();
     }
 
     @Override
-    public Optional<Employee> getUserInfo(String userId) {
-        return repository.findActiveByUsername(userId);
+    public Optional<EmployeeEntity> getUserInfo(String userId) {
+        return repository.findActiveByUserIdOrPreferredUsername(userId);
     }
 
     @Override
-    public void saveUserInfo(Employee employee) {
+    public void saveUserInfo(EmployeeEntity employee) {
         throw new UnsupportedOperationException("External identity providers are not used by this demo.");
     }
 
     @Override
     public List<Employee> employees() {
-        return repository.findEmployees();
+        return repository.findEmployees().stream().map(this::toEmployee).toList();
     }
 
     @Override
-    public Employee employee(long id) {
-        return repository.findEmployee(id);
+    public Employee employee(String userId) {
+        return toEmployee(repository.findEmployee(userId));
     }
 
     @Override
@@ -50,6 +51,20 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public void createEmployee(Employee employee) {
         employee.setActive(true);
-        repository.createEmployee(employee.getName(), employee.getUsername(), employee.getPassword(), employee.getRole());
+        if (employee.getUserId() == null || employee.getUserId().isBlank()) {
+            employee.setUserId(UUID.randomUUID().toString());
+        }
+        repository.createEmployee(employee.getUserId(), employee.getName(),
+                employee.getPassword(), employee.getRole());
+    }
+
+    private Employee toEmployee(EmployeeEntity entity) {
+        var employee = new Employee();
+        employee.setUserId(entity.getUserId());
+        employee.setName(entity.getName());
+        employee.setPassword(entity.getPassword());
+        employee.setRole(entity.getRole());
+        employee.setActive(entity.isActive());
+        return employee;
     }
 }

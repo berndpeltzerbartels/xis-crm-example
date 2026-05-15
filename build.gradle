@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'one.xis.plugin' version '0.9.5'
+    id 'one.xis.plugin' version '0.10.0'
 }
 
 group = 'one.xis.examples'
@@ -25,6 +25,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:2.0.3'
 
     implementation 'com.h2database:h2:2.2.224'
+    implementation 'org.postgresql:postgresql:42.7.7'
     runtimeOnly 'org.tinylog:slf4j-tinylog:2.6.2'
     runtimeOnly 'org.tinylog:tinylog-impl:2.6.2'
 

@@ -12,32 +12,39 @@ import java.util.Optional;
 public interface EmployeeRepository {
 
     @Select("""
-            select id, username as user_id, name, password, role, active
+            select user_id, preferred_username, name, password, role, active
             from employees
-            where username = {username} and active = true
+            where user_id = {userId} and active = true
             """)
-    Optional<Employee> findActiveByUsername(@Param("username") String username);
+    Optional<EmployeeEntity> findActiveByUserId(@Param("userId") String userId);
 
     @Select("""
-            select id, username as user_id, name, password, role, active
+            select user_id, preferred_username, name, password, role, active
+            from employees
+            where (user_id = {value} or preferred_username = {value}) and active = true
+            """)
+    Optional<EmployeeEntity> findActiveByUserIdOrPreferredUsername(@Param("value") String value);
+
+    @Select("""
+            select user_id, preferred_username, name, password, role, active
             from employees
             order by role, name
             """)
-    List<Employee> findEmployees();
+    List<EmployeeEntity> findEmployees();
 
     @Select("""
-            select id, username as user_id, name, password, role, active
+            select user_id, preferred_username, name, password, role, active
             from employees
-            where id = {id}
+            where user_id = {userId}
             """)
-    Employee findEmployee(@Param("id") long id);
+    EmployeeEntity findEmployee(@Param("userId") String userId);
 
     @Insert("""
-            insert into employees (name, username, password, role, active)
-            values ({name}, {username}, {password}, {role}, true)
+            insert into employees (user_id, preferred_username, name, password, role, active)
+            values ({userId}, {userId}, {name}, {password}, {role}, true)
             """)
-    int createEmployee(@Param("name") String name,
-                       @Param("username") String username,
+    int createEmployee(@Param("userId") String userId,
+                       @Param("name") String name,
                        @Param("password") String password,
                        @Param("role") String role);
 }

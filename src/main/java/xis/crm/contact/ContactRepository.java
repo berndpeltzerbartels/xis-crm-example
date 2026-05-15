@@ -14,7 +14,7 @@ public interface ContactRepository extends CrudRepository<ContactEntity, Long> {
             select c.id, c.customer_id, c.employee_id, cast(c.contact_date as varchar) as contact_date,
                    e.name as employee_name, c.channel, c.description
             from contacts c
-            join employees e on e.id = c.employee_id
+            join employees e on e.user_id = c.employee_id
             where c.customer_id = {customerId}
             order by c.contact_date desc, c.id desc
             """)

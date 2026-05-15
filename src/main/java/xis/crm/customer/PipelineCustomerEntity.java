@@ -4,18 +4,18 @@ import lombok.Getter;
 import lombok.Setter;
 import one.xis.sql.Entity;
 
-@Entity("customers")
+@Entity(value = "customers", allowUnmappedFields = true)
 @Getter
 @Setter
-public class CustomerEntity {
+class PipelineCustomerEntity {
     private long id;
     private String name;
     private String segment;
     private String city;
-    private String email;
-    private String phone;
     private CustomerStage stage;
     private int revenue;
     private String ownerId;
-    private String notes;
+    private String ownerName;
+    private int openTasks;
+    private String nextReminder;
 }

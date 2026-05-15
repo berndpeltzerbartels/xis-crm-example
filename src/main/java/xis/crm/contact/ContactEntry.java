@@ -6,7 +6,7 @@ import one.xis.sql.Entity;
 public class ContactEntry {
     private long id;
     private long customerId;
-    private long employeeId;
+    private String employeeId;
     private String contactDate = "";
     private String employeeName = "";
     private String channel = "Call";
@@ -28,11 +28,11 @@ public class ContactEntry {
         this.customerId = customerId;
     }
 
-    public long getEmployeeId() {
+    public String getEmployeeId() {
         return employeeId;
     }
 
-    public void setEmployeeId(long employeeId) {
+    public void setEmployeeId(String employeeId) {
         this.employeeId = employeeId;
     }
 

@@ -1,12 +1,12 @@
 <div class="modal-card" xmlns:xis="https://xis.one/xsd">
     <h2>Schedule follow-up</h2>
     <xis:form binding="followUp" class="modal-form">
+        <xis:global-messages/>
         <input xis:binding="customerId" type="hidden"/>
-        <div class="two-columns">
-            <label>Due date <input xis:binding="dueDate" type="date"/></label>
-            <label>Reminder <input xis:binding="reminder" placeholder="09:00"/></label>
-        </div>
-        <label>Task <input xis:binding="task"/></label>
+        <label xis:binding="dueDate" xis:error-class="error">Due date <input xis:binding="dueDate" xis:error-class="error" type="datetime-local"/></label>
+        <xis:message class="field-error" message-for="dueDate"/>
+        <label xis:binding="task" xis:error-class="error">Task <input xis:binding="task" xis:error-class="error"/></label>
+        <xis:message class="field-error" message-for="task"/>
         <div class="action-row right">
             <button class="ghost" xis:action="cancel" type="button">Cancel</button>
             <button class="primary" xis:action="save">Schedule</button>

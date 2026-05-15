@@ -4,18 +4,19 @@ import one.xis.context.IntegrationTestContext;
 import one.xis.context.TestClient;
 import one.xis.test.dom.Element;
 import one.xis.test.dom.InputElement;
+import one.xis.test.dom.SelectElement;
 import one.xis.test.dom.TextareaElement;
 import org.h2.jdbcx.JdbcDataSource;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import xis.crm.employee.Employee;
+import xis.crm.employee.EmployeeEntity;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CustomersPageTest {
 
@@ -23,16 +24,20 @@ class CustomersPageTest {
 
     @BeforeEach
     void setUp() {
+        context = createContext("SALES");
+    }
+
+    private IntegrationTestContext createContext(String role) {
         var dataSource = new JdbcDataSource();
         dataSource.setURL("jdbc:h2:mem:crm-page-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1");
 
-        var user = new Employee();
+        var user = new EmployeeEntity();
         user.setUserId("mara");
         user.setName("Mara Stein");
-        user.setRole("SALES");
-        user.setRoles(Set.of("SALES"));
+        user.setRole(role);
+        user.setRoles(Set.of(role));
 
-        context = IntegrationTestContext.builder()
+        return IntegrationTestContext.builder()
                 .withSingleton(dataSource)
                 .withPackage("xis.crm")
                 .withLoggedInUser(user, "demo")
@@ -46,30 +51,29 @@ class CustomersPageTest {
 
         assertEquals("Mara Stein", document.getElementById("employee-name").getInnerText());
         assertEquals("SALES", document.getElementById("employee-role").getInnerText());
-        assertEquals("4 accounts", document.getElementById("customer-count").getInnerText());
-        assertEquals("Blue Pepper Retail", document.getElementById("selected-customer-name").getInnerText());
-        assertNull(context.getSessionStorage().getItem("crmWorkspace"));
-
-        document.getElementById("customer-1").click();
-
+        assertEquals("1 accounts", document.getElementById("customer-count").getInnerText());
         assertEquals("Nordlicht Logistics", document.getElementById("selected-customer-name").getInnerText());
-        assertEquals("Proposal", document.getElementById("selected-customer-stage").getInnerText());
-        assertNull(context.getSessionStorage().getItem("crmWorkspace"));
+
+        document.getElementById("customer-4").click();
+
+        assertEquals("Blue Pepper Retail", document.getElementById("selected-customer-name").getInnerText());
+        assertEquals("PIPELINE", document.getElementById("selected-customer-stage").getInnerText());
+        assertTrue(client.getSessionStorage().getItem("crmState").contains("\"selectedCustomerId\":4"));
     }
 
     @Test
     void editCustomerUsesSelectedCustomer() {
-        assertSelectedCustomerParameter("Edit customer", "Edit customer", "id", "1");
+        assertSelectedCustomerParameter("Edit customer", "Edit customer", "id", "4");
     }
 
     @Test
     void addContactUsesSelectedCustomer() {
-        assertSelectedCustomerParameter("Add contact", "Add contact", "customerId", "1");
+        assertSelectedCustomerParameter("Add contact", "Add contact", "customerId", "4");
     }
 
     @Test
     void scheduleFollowUpUsesSelectedCustomer() {
-        assertSelectedCustomerParameter("Schedule", "Schedule follow-up", "customerId", "1");
+        assertSelectedCustomerParameter("Schedule", "Schedule follow-up", "customerId", "4");
     }
 
     @Test
@@ -77,71 +81,149 @@ class CustomersPageTest {
         var client = context.openPage("/customers.html");
         var document = client.getDocument();
 
-        document.getElementById("customer-1").click();
+        document.getElementById("customer-4").click();
         button(client, "Edit customer").click();
-        input(client, "name").setValue("Nordlicht Solutions");
-        input(client, "stage").setValue("Won");
+        input(client, "name").setValue("Blue Pepper Solutions");
+        input(client, "city").setValue("Hamburg");
+        select(client, "stage").setValue("WON");
+        input(client, "revenue").setValue("123456");
         textarea(client, "notes").setValue("Contract signed after rollout planning.");
         button(client, "Save").click();
 
-        assertEquals("Nordlicht Solutions", client.getDocument().getElementById("selected-customer-name").getInnerText());
-        assertEquals("Won", client.getDocument().getElementById("selected-customer-stage").getInnerText());
+        assertEquals("Blue Pepper Solutions", client.getDocument().getElementById("selected-customer-name").getInnerText());
+        assertTrue(client.getDocument().getElementById("selected-customer-contact").getInnerText().contains("Hamburg"));
+        assertEquals("WON", client.getDocument().getElementById("selected-customer-stage").getInnerText());
+        assertEquals("123456 EUR", client.getDocument().getElementById("selected-customer-revenue").getInnerText());
         assertTextOccurs(client, ".notes p", "Contract signed after rollout planning.");
     }
 
-    @Test
-    void addContactSavesContactAndReloadsPage() {
-        var client = context.openPage("/customers.html");
-        var document = client.getDocument();
+    @Nested
+    class CustomerModalTests {
 
-        document.getElementById("customer-1").click();
-        button(client, "Add contact").click();
-        input(client, "contactDate").setValue("2026-05-13");
-        textarea(client, "description").setValue("Walked through commercial rollout risks.");
-        button(client, "Save contact").click();
+        @Test
+        void invalidCustomerShowsFieldMessagesAndStaysOpen() {
+            var client = openSelectedCustomer();
 
-        assertTextOccurs(client, ".timeline p", "Walked through commercial rollout risks.");
+            button(client, "Edit customer").click();
+            input(client, "name").setValue("");
+            input(client, "email").setValue("broken-email");
+            input(client, "phone").setValue("abc");
+            button(client, "Save").click();
+
+            assertEquals("Edit customer", heading(client, "Edit customer").getInnerText());
+            assertFieldError(client, "name");
+            assertFieldError(client, "email");
+            assertFieldError(client, "phone");
+        }
     }
 
-    @Test
-    void scheduleFollowUpSavesFollowUpAndReloadsPage() {
-        var client = context.openPage("/customers.html");
-        var document = client.getDocument();
+    @Nested
+    class ContactModalTests {
 
-        document.getElementById("customer-1").click();
-        button(client, "Schedule").click();
-        input(client, "dueDate").setValue("2026-05-20");
-        input(client, "reminder").setValue("15:45");
-        input(client, "task").setValue("Send board-ready offer");
-        button(client, "Schedule").click();
+        @Test
+        void savesContactAndReloadsPage() {
+            var client = openSelectedCustomer();
 
-        assertTextOccurs(client, ".tasks strong", "Send board-ready offer");
-        assertTextOccurs(client, ".tasks span", "Reminder 15:45");
+            button(client, "Add contact").click();
+            input(client, "contactDate").setValue("2026-05-13");
+            textarea(client, "description").setValue("Walked through commercial rollout risks.");
+            button(client, "Save contact").click();
+
+            assertTextOccurs(client, ".timeline p", "Walked through commercial rollout risks.");
+        }
+
+        @Test
+        void validationErrorsStayInModal() {
+            var client = openSelectedCustomer();
+
+            button(client, "Add contact").click();
+            textarea(client, "description").setValue("short");
+            button(client, "Save contact").click();
+
+            assertEquals("Add contact", heading(client, "Add contact").getInnerText());
+            assertFieldError(client, "description");
+        }
     }
 
-    @Test
-    void completeFollowUpMarksTaskDoneAndReloadsPage() {
-        var client = context.openPage("/customers.html");
-        var document = client.getDocument();
+    @Nested
+    class FollowUpModalTests {
 
-        document.getElementById("customer-1").click();
-        button(client, "Done").click();
-        assertEquals("Complete reminder", heading(client, "Complete reminder").getInnerText());
-        button(client, "Mark done").click();
+        @Test
+        void savesFollowUpAndReloadsPage() {
+            var client = openSelectedCustomer();
 
-        assertEquals("0", document.getElementById("selected-customer-open-tasks").getInnerText());
+            button(client, "Schedule").click();
+            input(client, "dueDate").setValue("2026-05-20T15:45");
+            input(client, "task").setValue("Send board-ready offer");
+            button(client, "Schedule").click();
+
+            assertTextOccurs(client, ".tasks strong", "Send board-ready offer");
+            assertTextOccurs(client, ".tasks span", "2026-05-20T15:45");
+        }
+
+        @Test
+        void validationErrorsStayInModal() {
+            var client = openSelectedCustomer();
+
+            button(client, "Schedule").click();
+            input(client, "dueDate").setValue("");
+            input(client, "task").setValue("short");
+            button(client, "Schedule").click();
+
+            assertEquals("Schedule follow-up", heading(client, "Schedule follow-up").getInnerText());
+            assertFieldError(client, "dueDate");
+            assertFieldError(client, "task");
+        }
+
+        @Test
+        void completeFollowUpMarksTaskDoneAndReloadsPage() {
+            var client = openSelectedCustomer();
+
+            button(client, "Done").click();
+
+            assertEquals("0", client.getDocument().getElementById("selected-customer-open-tasks").getInnerText());
+        }
+    }
+
+    @Nested
+    class EmployeeModalTests {
+
+        @Test
+        void invalidEmployeeShowsValidationErrorsAndStaysOpen() {
+            context = createContext("ADMIN");
+            var client = context.openPage("/customers.html");
+
+            button(client, "Add employee").click();
+            input(client, "name").setValue("A");
+            input(client, "userId").setValue("not allowed");
+            input(client, "password").setValue("123");
+            button(client, "Create employee").click();
+
+            assertEquals("Add employee", heading(client, "Add employee").getInnerText());
+            assertFieldError(client, "name");
+            assertFieldError(client, "userId");
+            assertFieldError(client, "password");
+        }
     }
 
     private void assertSelectedCustomerParameter(String actionText, String modalTitle,
                                                  String fieldName, String expectedValue) {
-        var client = context.openPage("/customers.html");
-        var document = client.getDocument();
-
-        document.getElementById("customer-1").click();
+        var client = openSelectedCustomer();
         button(client, actionText).click();
 
         assertEquals(modalTitle, heading(client, modalTitle).getInnerText());
         assertEquals(expectedValue, input(client, fieldName).getValue());
+    }
+
+    private TestClient openSelectedCustomer() {
+        var client = context.openPage("/customers.html");
+        client.getDocument().getElementById("customer-4").click();
+        return client;
+    }
+
+    private void assertFieldError(TestClient client, String binding) {
+        assertFalse(fieldMessage(client, binding).getInnerText().isBlank());
+        assertTrue(formElement(client, binding).getAttribute("class").contains("error"));
     }
 
     private Element button(TestClient client, String text) {
@@ -161,6 +243,30 @@ class CustomersPageTest {
     private TextareaElement textarea(TestClient client, String binding) {
         return (TextareaElement) client.getDocument().querySelectorAll("textarea").stream()
                 .filter(element -> binding.equals(element.getAttribute("xis:binding")))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private SelectElement select(TestClient client, String binding) {
+        return (SelectElement) client.getDocument().querySelectorAll("select").stream()
+                .filter(element -> binding.equals(element.getAttribute("xis:binding")))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private Element formElement(TestClient client, String binding) {
+        return Stream.of("input", "textarea", "select")
+                .flatMap(selector -> client.getDocument().querySelectorAll(selector).stream())
+                .filter(element -> binding.equals(element.getAttribute("xis:binding")))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private Element fieldMessage(TestClient client, String binding) {
+        return client.getDocument().getElementsByTagName("xis:message").stream()
+                .filter(Element.class::isInstance)
+                .map(Element.class::cast)
+                .filter(element -> binding.equals(element.getAttribute("message-for")))
                 .findFirst()
                 .orElseThrow();
     }
