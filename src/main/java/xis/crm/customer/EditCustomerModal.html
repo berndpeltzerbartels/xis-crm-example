@@ -27,7 +27,7 @@
                     <option xis:repeat="stage:stages" value="${stage}">${stage}</option>
                 </select>
             </label>
-            <label>Revenue <input xis:binding="revenue" type="number"/></label>
+            <label xis:binding="revenue" xis:error-class="error">Revenue <input xis:binding="revenue" xis:error-class="error" type="number"/></label>
         </div>
         <xis:message class="field-error" message-for="stage"/>
         <label xis:binding="ownerId" xis:error-class="error">Owner
@@ -36,7 +36,7 @@
             </select>
         </label>
         <xis:message class="field-error" message-for="ownerId"/>
-        <label>Notes <textarea xis:binding="notes"></textarea></label>
+        <label xis:binding="notes" xis:error-class="error">Notes <textarea xis:binding="notes" xis:error-class="error"></textarea></label>
         <div class="action-row right">
             <button class="ghost" xis:action="cancel" type="button">Cancel</button>
             <button class="primary" xis:action="save">Save</button>

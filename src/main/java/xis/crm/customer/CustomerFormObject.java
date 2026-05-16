@@ -24,15 +24,20 @@ public class CustomerFormObject {
     @EMail
     @LabelKey("customer.email")
     private String email;
-    @RegExpr("(|[+0-9][0-9 ()/-]{5,24})")
+    @Mandatory
+    @RegExpr("[+0-9][0-9 ()/-]{5,24}")
     @LabelKey("customer.phone")
     private String phone;
     @Mandatory
     @LabelKey("customer.stage")
     private CustomerStage stage;
-    private int revenue;
+    @Mandatory
+    @LabelKey("customer.revenue")
+    private Integer revenue;
     @Mandatory
     @LabelKey("customer.owner")
     private String ownerId;
+    @Mandatory
+    @LabelKey("customer.notes")
     private String notes;
 }
